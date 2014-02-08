@@ -73,10 +73,32 @@ If you want a `CardHeader` with the overflow button you can use this simple code
                 Toast.makeText(getActivity(), "Click on "+item.getTitle(), Toast.LENGTH_SHORT).show();
             }
         });
+
+        //Add a PopupMenuPrepareListener to add dynamically a menu entry
+        //It is optional.
+        header.setPopupMenuPrepareListener(new CardHeader.OnPrepareCardHeaderPopupMenuListener() {
+            @Override
+            public boolean onPreparePopupMenu(BaseCard card, PopupMenu popupMenu) {
+                popupMenu.getMenu().add("Dynamic Item");
+                return true;
+
+                /*
+                 * Other examples:
+                 * You can remove an item with this code:
+                 * popupMenu.getMenu().removeItem(R.id.action_settings);
+                 *
+                 * You can use return false to hide the button and the popup
+                 * return false;
+                 */
+
+            }
+        });
         card.addCardHeader(header);
 ```
 
-You can use the listener  `CardHeader.OnClickCardHeaderPopupMenuListener` to listen callback when an item menu is clicked.
+You can use the listener `CardHeader.OnClickCardHeaderPopupMenuListener` to listen callback when an item menu is clicked.
+
+You can set a `CardHeader.OnPrepareCardHeaderPopupMenuListener` with `setPopupMenuPrepareListener` method or with `setPopupMenu(int menuRes, OnClickCardHeaderPopupMenuListener listener, OnPrepareCardHeaderPopupMenuListener prepareListener)` to customize the menu items  after being inflated.
 
 As described [below](#style), the overflow icon is defined with this style:
 
@@ -258,7 +280,7 @@ You can see `res/layout/carddemo_example_card1_layout.xml`.
 
 ``` xml
    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                 xmlns:card="http://schemas.android.com/apk/res-auto"
+                 xmlns:card="http://schemas.android.com/apk/res-auto">
 
              
          <it.gmariotti.cardslib.library.view.component.CardHeaderView
@@ -273,13 +295,15 @@ You can see `res/layout/carddemo_example_card1_layout.xml`.
    </LinearLayout>
 ```
 
-When you use a custom card layout or compound layout is important to use the **same IDs** to preserve built-in features. When you use a custom inner layout you can change everything.
+Pay attention. The card header has a header (general) layout. You can specify it using this attr:`card:card_header_layout_resourceID="@layout/carddemo_example_card1_header_layout"`.
 
-You can specify your header layout (compound layout) using this attr:`card:card_header_layout_resourceID="@layout/carddemo_example_card1_header_layout"`.
+This layout is not the [header inner layout](#customizing-the-innercontent-header-layout) described above.
+
+When you use a custom card layout with a custom header (general) layout is important to use the **same IDs** to preserve built-in features. When you use a custom inner layout you can change everything.
 
 Then you have to define your header layout:
 
-You can see an exmple in `res/layout/carddemo_example_card1_header_layout.xml`
+You can see an example in `res/layout/carddemo_example_card1_header_layout.xml`
 
 ``` xml
 <!-- This is the Header Layout -->
@@ -303,6 +327,10 @@ You can see an exmple in `res/layout/carddemo_example_card1_header_layout.xml`
 ```
 
 Finally you can extend `CardHeader` and popolate your elements as above.
+
+It is very important to preserve the element with `android:id="@+id/card_header_inner_frame"`.
+
+Without this element, the `setupInnerViewElements` method in your `CardHeader` will not be called.
 
 ![Screen](https://github.com/gabrielemariotti/cardslib/raw/master/demo/images/header/layout.png)
 

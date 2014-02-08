@@ -1,6 +1,6 @@
 /*
  * ******************************************************************************
- *   Copyright (c) 2013 Gabriele Mariotti.
+ *   Copyright (c) 2013-2014 Gabriele Mariotti.
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
  *   you may not use this file except in compliance with the License.
@@ -128,12 +128,17 @@ public class CardHeaderView extends FrameLayout implements CardViewInterface {
     /**
      * Used to recycle ui elements.
      */
-    protected boolean mIsRecycle=false;
+    protected boolean mIsRecycle = false;
 
     /**
      * Used to replace inner layout elements.
      */
     protected boolean mForceReplaceInnerLayout = false;
+
+    /**
+     * Popup Menu for overflow button
+     */
+    protected PopupMenu mPopupMenu;
 
     //--------------------------------------------------------------------------
     // Constructors
@@ -253,8 +258,13 @@ public class CardHeaderView extends FrameLayout implements CardViewInterface {
 
         if (mCardHeader.isButtonOverflowVisible()) {
             visibilityButtonHelper(VISIBLE, GONE, GONE);
-            //Add popup
-            addPopup();
+
+            if (mCardHeader.getPopupMenu() != CardHeader.NO_POPUP_MENU) {
+                //Add popup
+                addPopup();
+            } else if (mCardHeader.getCustomOverflowAnimation() != null) {
+                addCustomOverflowAnimation();
+            }
         } else {
 
             if (mCardHeader.isButtonExpandVisible()) {
@@ -282,6 +292,29 @@ public class CardHeaderView extends FrameLayout implements CardViewInterface {
     }
 
     /**
+     * Add Custom Overflow Animation
+     */
+    private void addCustomOverflowAnimation() {
+
+        final CardHeader.CustomOverflowAnimation animation = mCardHeader.getCustomOverflowAnimation();
+        if (animation != null && mImageButtonOverflow != null) {
+
+            //Add a PopupMenu and its listener
+            mImageButtonOverflow.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    animation.doAnimation(mCardHeader.getParentCard(), v);
+                }
+            });
+
+        } else {
+            if (mImageButtonOverflow != null)
+                mImageButtonOverflow.setVisibility(GONE);
+        }
+
+    }
+
+    /**
      * Sets listener for OtherButtonAction
      */
     protected void addOtherListener() {
@@ -291,12 +324,12 @@ public class CardHeaderView extends FrameLayout implements CardViewInterface {
                 mImageButtonOther.setOnClickListener(new OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        if (mCardHeader.getOtherButtonClickListener()!=null)
+                        if (mCardHeader.getOtherButtonClickListener() != null)
                             mCardHeader.getOtherButtonClickListener().onButtonItemClick(mCardHeader.getParentCard(), v);
                     }
                 });
             }
-        }else{
+        } else {
             if (mImageButtonOther != null) {
                 mImageButtonOther.setClickable(false);
             }
@@ -310,18 +343,18 @@ public class CardHeaderView extends FrameLayout implements CardViewInterface {
         if (mFrameInner != null) {
             //Check if view can be recycled
             //It can happen in a listView to improve performances or while refreshing a card
-            if (!isRecycle() || isForceReplaceInnerLayout()){
+            if (!isRecycle() || isForceReplaceInnerLayout()) {
 
-                if (isForceReplaceInnerLayout() && mFrameInner != null && mInternalInnerView!=null)
+                if (isForceReplaceInnerLayout() && mFrameInner != null && mInternalInnerView != null)
                     mFrameInner.removeView(mInternalInnerView);
 
                 //Inflate inner view
                 mInternalInnerView = mCardHeader.getInnerView(getContext(), mFrameInner);
-            }else{
+            } else {
                 //View can be recycled.
                 //Only setup Inner Elements
-                if (mCardHeader.getInnerLayout()>-1)
-                    mCardHeader.setupInnerViewElements(mFrameInner,mInternalInnerView);
+                if (mCardHeader.getInnerLayout() > -1)
+                    mCardHeader.setupInnerViewElements(mFrameInner, mInternalInnerView);
             }
         }
     }
@@ -355,33 +388,72 @@ public class CardHeaderView extends FrameLayout implements CardViewInterface {
      */
     protected void addPopup() {
 
+        //To prevent recycle
+        mPopupMenu = null;
+
         if (mCardHeader.getPopupMenu() > -1 && mImageButtonOverflow != null) {
 
-            //Add a PopupMenu and its listener
-            mImageButtonOverflow.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    PopupMenu popup = new PopupMenu(getContext(), mImageButtonOverflow);
-                    MenuInflater inflater = popup.getMenuInflater();
-                    inflater.inflate(mCardHeader.getPopupMenu(), popup.getMenu());
-                    popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-                        @Override
-                        public boolean onMenuItemClick(MenuItem item) {
-                            if (mCardHeader.getPopupMenu() > 0 && mCardHeader.getPopupMenuListener() != null) {
-                                // This individual card has it unique menu
-                                mCardHeader.getPopupMenuListener().onMenuItemClick(mCardHeader.getParentCard(), item);
-                            }
-                            return false;
+            // allow dynamic customization on popup menu
+            boolean prepareMenu = true;
+            if (mCardHeader.getPopupMenuPrepareListener() != null) {
+
+                //Build the popupMenu
+                mPopupMenu = _buildPopupMenu();
+
+                //Dynamic customization
+                prepareMenu = mCardHeader.getPopupMenuPrepareListener().onPreparePopupMenu(mCardHeader.getParentCard(), mPopupMenu);
+
+                //Check if the menu has visible items
+                if (mPopupMenu.getMenu()==null || !mPopupMenu.getMenu().hasVisibleItems())
+                    prepareMenu = false;
+            }
+
+            if (prepareMenu) {
+                //Add a PopupMenu and its listener
+                mImageButtonOverflow.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (mPopupMenu==null){
+                            //It is null if the PopupMenuPrepareListener is null
+                            //PopupMenu is built inside onClick() method to avoid building the menu when it is not necessary
+                            mPopupMenu = _buildPopupMenu();
                         }
-                    });
-                    popup.show();
-                }
-            });
+                        if (mPopupMenu!=null)
+                            mPopupMenu.show();
+                    }
+                });
+            } else {
+                mImageButtonOverflow.setVisibility(GONE);
+            }
 
         } else {
             if (mImageButtonOverflow != null)
                 mImageButtonOverflow.setVisibility(GONE);
         }
+    }
+
+
+    /**
+     * Build the menu
+     * @return
+     */
+    private PopupMenu _buildPopupMenu(){
+
+        PopupMenu popup = new PopupMenu(getContext(), mImageButtonOverflow);
+        MenuInflater inflater = popup.getMenuInflater();
+        inflater.inflate(mCardHeader.getPopupMenu(), popup.getMenu());
+        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+                if (mCardHeader.getPopupMenu() > 0 && mCardHeader.getPopupMenuListener() != null) {
+                    // This individual card has it unique menu
+                    mCardHeader.getPopupMenuListener().onMenuItemClick(mCardHeader.getParentCard(), item);
+                }
+                return false;
+            }
+        });
+
+        return popup;
     }
 
     //--------------------------------------------------------------------------
@@ -404,8 +476,9 @@ public class CardHeaderView extends FrameLayout implements CardViewInterface {
      */
     public void setOnClickExpandCollapseActionListener(OnClickListener onClickExpandCollapseActionListener) {
         this.mOnClickExpandCollapseActionListener = onClickExpandCollapseActionListener;
-        if (mImageButtonExpand != null)
+        /*if (mImageButtonExpand != null)
             mImageButtonExpand.setOnClickListener(onClickExpandCollapseActionListener);
+            */
     }
 
     /**
@@ -420,7 +493,7 @@ public class CardHeaderView extends FrameLayout implements CardViewInterface {
     /**
      * Sets if view can recycle ui elements
      *
-     * @param isRecycle  <code>true</code> to recycle
+     * @param isRecycle <code>true</code> to recycle
      */
     public void setRecycle(boolean isRecycle) {
         this.mIsRecycle = isRecycle;
@@ -438,7 +511,7 @@ public class CardHeaderView extends FrameLayout implements CardViewInterface {
     /**
      * Sets if inner layout have to be replaced
      *
-     * @param forceReplaceInnerLayout  <code>true</code> to recycle
+     * @param forceReplaceInnerLayout <code>true</code> to recycle
      */
     public void setForceReplaceInnerLayout(boolean forceReplaceInnerLayout) {
         this.mForceReplaceInnerLayout = forceReplaceInnerLayout;
@@ -471,5 +544,13 @@ public class CardHeaderView extends FrameLayout implements CardViewInterface {
         return mImageButtonOther;
     }
 
+    /**
+     * Returns the Frame which contains the buttons
+     *
+     * @return
+     */
+    public ViewGroup getFrameButton() {
+        return mFrameButton;
+    }
 
 }

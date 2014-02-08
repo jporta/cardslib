@@ -1,11 +1,4 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:0.6.+'
-    }
-}
+
 apply plugin: 'android'
 
 repositories {
@@ -33,6 +26,11 @@ android {
                 signingConfig signingConfigs.release
             }
         }
+    }
+
+    // This is important, it will run lint checks but won't abort build
+    lintOptions {
+        abortOnError false
     }
 }
 
