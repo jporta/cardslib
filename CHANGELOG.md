@@ -1,6 +1,20 @@
 Change Log
 ===============================================================================
 
+Version 1.4.2 *(2014-03-07)*
+----------------------------
+* LIB: new expand/collapse methods are now available also for `CardCursorAdapter` [(doc)](https://github.com/gabrielemariotti/cardslib/blob/master/doc/EXPAND.md#cardexpand-and-cardlistview)
+  It contains a **BREAKING CHANGE** with CardCursorApdater and Expand feature. Read the above link to migrate your code.
+
+
+Version 1.4.0 *(2014-03-02)*
+----------------------------
+* LIB: expand/collapse methods are completely new.(Fixed issues with smooth scroll, proper height measure, parent lose when expanded view isn't entirely visible...)
+* LIB: Added a feature to add the PopupMenu in CardHeader entirely from code [(doc)](https://github.com/gabrielemariotti/cardslib/tree/master/doc/HEADER.md#standard-header-with-the-overflow-botton-and-popupmenu-built-programmatically)
+* DEMO: Added an example with PopupMenu in CardHeader built programmatically (in Header screen)
+* DEMO-Extras: updated all libraries.
+
+
 Version 1.3.0 *(2014-01-25)*
 ----------------------------
 * LIB: Added a `CardGridArrayMultiChoiceAdapter` [(doc)](https://github.com/gabrielemariotti/cardslib/tree/master/doc/CARDGRID.md#using-a-cardgrid-in-multichoicemode)

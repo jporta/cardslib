@@ -410,8 +410,8 @@ public class CardView extends BaseCardView {
     protected void setupExpandAction(){
 
         //Config ExpandLayout and its animation
-        if ( (mInternalExpandLayout !=null && mCardHeader!=null && mCardHeader.isButtonExpandVisible() ) ||
-                mCard.getViewToClickToExpand()!=null  ){
+        if ( mInternalExpandLayout !=null && ( (mCardHeader!=null && mCardHeader.isButtonExpandVisible()) ||
+                mCard.getViewToClickToExpand()!=null)  ){
 
             //Create the expand/collapse animator
             mInternalExpandLayout.getViewTreeObserver().addOnPreDrawListener(
@@ -420,15 +420,11 @@ public class CardView extends BaseCardView {
                         @Override
                         public boolean onPreDraw() {
                             mInternalExpandLayout.getViewTreeObserver().removeOnPreDrawListener(this);
-                            //mInternalExpandLayout.setVisibility(View.GONE);
 
-                            final int widthSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+                            View parent = (View) mInternalExpandLayout.getParent();
+                            final int widthSpec = View.MeasureSpec.makeMeasureSpec(parent.getMeasuredWidth() - parent.getPaddingLeft() - parent.getPaddingRight(), View.MeasureSpec.AT_MOST);
                             final int heightSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
                             mInternalExpandLayout.measure(widthSpec, heightSpec);
-
-                            final int widthSpecCard = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-                            final int heightSpecCard = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
-                            mCollapsedHeight = getMeasuredHeight();
 
                             mExpandAnimator = createSlideAnimator(0, mInternalExpandLayout.getMeasuredHeight());
                             return true;
@@ -595,9 +591,6 @@ public class CardView extends BaseCardView {
     // Expandable Actions and Listeners
     //--------------------------------------------------------------------------
 
-    protected int mCollapsedHeight;
-    protected int mExpandedHeight=-1;
-
     /**
      * Add ClickListener to expand and collapse hidden view
      */
@@ -608,6 +601,7 @@ public class CardView extends BaseCardView {
 
             ViewToClickToExpand viewToClickToExpand = null;
 
+            //ButtonExpandVisible has a priority to viewClickToExpand
             if (mCardHeader != null && mCardHeader.isButtonExpandVisible()) {
 
                 viewToClickToExpand = ViewToClickToExpand.builder()
@@ -671,6 +665,10 @@ public class CardView extends BaseCardView {
                 if (mCardExpand.getInnerLayout()>-1)
                     mCardExpand.setupInnerViewElements((ViewGroup)mInternalExpandLayout,mInternalExpandInnerView);
             }
+
+            ViewGroup.LayoutParams layoutParams = mInternalExpandLayout.getLayoutParams();
+            layoutParams.height = LayoutParams.WRAP_CONTENT;
+            mInternalExpandLayout.setLayoutParams(layoutParams);
         }
     }
 
@@ -796,7 +794,6 @@ public class CardView extends BaseCardView {
     protected void onSizeChanged(int xNew, int yNew, int xOld, int yOld)
     {
         super.onSizeChanged(xNew, yNew, xOld, yOld);
-        mExpandedHeight = yNew;
     }
 
     // -------------------------------------------------------------
@@ -880,22 +877,6 @@ public class CardView extends BaseCardView {
      */
     public View getInternalInnerView() {
         return mInternalInnerView;
-    }
-
-    public int getCollapsedHeight() {
-        return mCollapsedHeight;
-    }
-
-    public void setCollapsedHeight(int collapsedHeight) {
-        mCollapsedHeight = collapsedHeight;
-    }
-
-    public int getExpandedHeight() {
-        return mExpandedHeight;
-    }
-
-    public void setExpandedHeight(int expandedHeight) {
-        mExpandedHeight = expandedHeight;
     }
 
     /**

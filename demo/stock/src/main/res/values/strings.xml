@@ -37,6 +37,8 @@
         Many thanks to these open source tools:<br>
         <b><a href="https://github.com/romannurik/Android-SwipeToDismiss">SwipeToDismiss</a></b><br>
         <i>by Roman Nurik</i><br><br>
+         <b><a href="https://github.com/nhaarman/ListViewAnimations">ListViewAnimations</a></b><br>
+        <i>by Niek Haarman</i><br><br>
         <br><br><br>
         Google and the Google Maps logo are registered trademarks of Google Inc.
 
@@ -92,6 +94,7 @@
     <string name="demo_section_header_standard">Standard Header without buttons</string>
     <string name="demo_section_header_overflow">Standard Header with overflow button</string>
     <string name="demo_section_header_overflow_dynamic">Overflow button with dynamic menu</string>
+    <string name="demo_section_header_overflow_dynamic2">Overflow button with dynamic menu without xml file</string>
     <string name="demo_section_header_expand">Standard Header with expand/collapse button</string>
     <string name="demo_section_header_expand_custom_area">Standard Header with expand/collapse button and custom expand Area</string>
     <string name="demo_section_header_otherButton">Standard Header with custom button</string>
@@ -122,6 +125,7 @@
     <string name="demo_section_card_expand_example2">Expand clicking on the card</string>
     <string name="demo_section_card_expand_example3">Expand clicking on the text</string>
     <string name="demo_section_card_expand_example4">Expand clicking on the image</string>
+    <string name="demo_section_card_expand_example5">Expand section inside the card</string>
 
     <string name="demo_section_card_changevalue_title">Click Refresh Icon to refresh card</string>
 
@@ -138,6 +142,8 @@
     <!-- Expand Example -->
     <string name="demo_expand_customtitle1">Lorem ipsum dolor sit amet, consectetur adipisici elit...</string>
     <string name="demo_expand_customtitle2">Quis aute iure reprehenderit in voluptate velit esse cillum ..</string>
+    <string name="demo_expand_customtitle3">Lorem ipsum dolor sit amet, consectetur adipisici elit...Lorem ipsum dolor sit amet, consectetur adipisici elit...Lorem ipsum dolor sit amet, consectetur adipisici elit...Lorem ipsum dolor sit amet, consectetur adipisici elit...</string>
+    <string name="demo_header_expand_area_inside">Card with expand area inside</string>
 
     <!-- Card Examples -->
     <string name="demo_card_basetitle">My Inner Text</string>
@@ -173,6 +179,7 @@
     <string name="demo_title_cab1">Long Click to enable CAB</string>
     <string name="demo_title_cab2">Text Changed!</string>
     <string name="demo_section_overflow_single_title">Example with simple animation</string>
+
 
 
 </resources>
